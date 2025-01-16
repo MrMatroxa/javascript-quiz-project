@@ -35,6 +35,7 @@ class Quiz {
   hasEnded() {
     if (this.currentQuestionIndex < this.questions.length) return false;
     if (this.currentQuestionIndex === this.questions.length) return true;
+    if (this.timeRemaining === 0) return true;
   }
   filterQuestionsByDifficulty(difficulty) {
     if (difficulty < 1 || difficulty > 3 || typeof difficulty !== "number")

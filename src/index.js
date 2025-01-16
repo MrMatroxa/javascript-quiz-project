@@ -57,21 +57,51 @@ document.addEventListener("DOMContentLoaded", () => {
   /************  SHOW INITIAL CONTENT  ************/
 
   // Convert the time remaining in seconds to minutes and seconds, and pad the numbers with zeros if needed
-  const minutes = Math.floor(quiz.timeRemaining / 60)
-    .toString()
-    .padStart(2, "0");
-  const seconds = (quiz.timeRemaining % 60).toString().padStart(2, "0");
+  // const minutes = Math.floor(quiz.timeRemaining / 60)
+  //   .toString()
+  //   .padStart(2, "0");
+  // const seconds = (quiz.timeRemaining % 60).toString().padStart(2, "0");
 
-  // Display the time remaining in the time remaining container
-  const timeRemainingContainer = document.getElementById("timeRemaining");
-  timeRemainingContainer.innerText = `${minutes}:${seconds}`;
+  // // Display the time remaining in the time remaining container
+  // const timeRemainingContainer = document.getElementById("timeRemaining");
+  // timeRemainingContainer.innerText = `${minutes}:${seconds}`;
 
   // Show first question
-  showQuestion();
 
+  // showQuestion();
+  // startTimer();
   /************  TIMER  ************/
 
   let timer;
+  let timeRemaining = quiz.timeRemaining;
+
+  function updateTimer() {
+    const minutes = Math.floor(timeRemaining / 60)
+      .toString()
+      .padStart(2, "0");
+    const seconds = (timeRemaining % 60).toString().padStart(2, "0");
+    const timeRemainingContainer = document.getElementById("timeRemaining");
+    timeRemainingContainer.innerText = `${minutes}:${seconds}`;
+  }
+
+  function startTimer() {
+    clearInterval(timer);
+    updateTimer();
+
+    timer = setInterval(() => {
+      if (timeRemaining === 0 || quiz.hasEnded()) {
+        showResults();
+        timeRemaining = quizDuration;
+        return;
+      }
+      timeRemaining--;
+      updateTimer();
+      // console.log("this is timer::", timer)
+      // console.log("this is time remaining::", timeRemaining)
+    }, 1000);
+  }
+  showQuestion();
+  startTimer();
 
   /************  EVENT LISTENERS  ************/
 
@@ -146,6 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Hint 2: You can use the `element.type`, `element.name`, and `element.value` properties to set the type, name, and value of an element.
     // Hint 3: You can use the `element.appendChild()` method to append an element to the choices container.
     // Hint 4: You can use the `element.innerText` property to set the inner text of an element.
+    // startTimer();
   }
 
   function nextButtonHandler() {
@@ -174,16 +205,27 @@ document.addEventListener("DOMContentLoaded", () => {
       quiz.moveToNextQuestion();
       showQuestion();
     }
-    const restartButton = document.getElementById("restartButton");
-    restartButton.onclick = () => {
-      endView.style.display = "none";
-      quizView.style.display = "flex";
-      quiz.correctAnswers = 0;
-      quiz.currentQuestionIndex = 0;
-      quiz.shuffleQuestions();
-      showQuestion();
-    };
   }
+
+  const restartButton = document.getElementById("restartButton");
+  const handleRestart = () => {
+    endView.style.display = "none";
+    quizView.style.display = "flex";
+    quiz.correctAnswers = 0;
+    quiz.currentQuestionIndex = 0;
+    clearInterval(timer);
+    timeRemaining = quizDuration;
+    // timer = quizDuration;
+    quiz.shuffleQuestions();
+    showQuestion();
+    startTimer();
+    console.log(`clicked`);
+    console.log("this is the time limit", quiz.timeLimit);
+    // window.location.reload();
+  };
+
+  restartButton.addEventListener("click", handleRestart);
+
   function showResults() {
     // YOUR CODE HERE:
     //
